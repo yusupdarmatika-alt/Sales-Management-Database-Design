@@ -1,0 +1,346 @@
+PROJECT 3: DATABASE PERFORMANCE TUNING AND QUERY OPTIMIZATION (POSTGRESQL)
+
+====================================================
+1. PROJECT OVERVIEW
+====================================================
+
+Tujuan:
+- Menganalisis performa query database.
+- Mengidentifikasi bottleneck pada database.
+- Mengoptimalkan query yang lambat.
+- Menggunakan indexing untuk meningkatkan performa.
+- Memonitor penggunaan resource database.
+- Meningkatkan response time aplikasi.
+
+====================================================
+2. PROJECT OBJECTIVES
+====================================================
+
+1. Mengukur performa query.
+2. Mengidentifikasi Full Table Scan.
+3. Mengimplementasikan Index.
+4. Mengoptimalkan JOIN.
+5. Mengurangi waktu eksekusi query.
+6. Membuat laporan hasil optimasi.
+
+====================================================
+3. SAMPLE DATABASE STRUCTURE
+====================================================
+
+TABLE: customers
+
+customer_id
+customer_name
+email
+phone
+
+TABLE: products
+
+product_id
+product_name
+price
+stock
+
+TABLE: orders
+
+order_id
+customer_id
+order_date
+total_amount
+
+TABLE: order_details
+
+detail_id
+order_id
+product_id
+quantity
+subtotal
+
+====================================================
+4. IDENTIFYING SLOW QUERIES
+====================================================
+
+Contoh Query:
+
+SELECT *
+FROM orders
+WHERE customer_id = 100;
+
+Analisis Query:
+
+EXPLAIN ANALYZE
+SELECT *
+FROM orders
+WHERE customer_id = 100;
+
+Output akan menunjukkan:
+
+- Sequential Scan
+- Index Scan
+- Execution Time
+- Cost Estimation
+
+====================================================
+5. USING EXPLAIN ANALYZE
+====================================================
+
+EXPLAIN ANALYZE
+SELECT *
+FROM customers
+WHERE email = 'customer@email.com';
+
+Perhatikan:
+
+- Planning Time
+- Execution Time
+- Rows Returned
+- Scan Type
+
+====================================================
+6. CREATING INDEXES
+====================================================
+
+Tanpa Index:
+
+SELECT *
+FROM orders
+WHERE customer_id = 100;
+
+Membuat Index:
+
+CREATE INDEX idx_orders_customer
+ON orders(customer_id);
+
+====================================================
+7. VERIFY INDEX USAGE
+====================================================
+
+EXPLAIN ANALYZE
+SELECT *
+FROM orders
+WHERE customer_id = 100;
+
+Expected Result:
+
+Index Scan instead of Seq Scan
+
+====================================================
+8. COMPOSITE INDEX
+====================================================
+
+CREATE INDEX idx_orders_customer_date
+ON orders(customer_id, order_date);
+
+Optimized Query:
+
+SELECT *
+FROM orders
+WHERE customer_id = 100
+AND order_date >= '2026-01-01';
+
+====================================================
+9. QUERY OPTIMIZATION
+====================================================
+
+Bad Query:
+
+SELECT *
+FROM customers;
+
+Better Query:
+
+SELECT customer_id,
+       customer_name
+FROM customers;
+
+Reason:
+
+Avoid unnecessary columns.
+
+====================================================
+10. JOIN OPTIMIZATION
+====================================================
+
+Query:
+
+SELECT
+c.customer_name,
+o.order_id,
+o.total_amount
+FROM customers c
+JOIN orders o
+ON c.customer_id = o.customer_id;
+
+Create Index:
+
+CREATE INDEX idx_customer_id
+ON customers(customer_id);
+
+CREATE INDEX idx_orders_customer_id
+ON orders(customer_id);
+
+====================================================
+11. AGGREGATION OPTIMIZATION
+====================================================
+
+Query:
+
+SELECT
+customer_id,
+SUM(total_amount)
+FROM orders
+GROUP BY customer_id;
+
+Index:
+
+CREATE INDEX idx_orders_customer
+ON orders(customer_id);
+
+====================================================
+12. PAGINATION OPTIMIZATION
+====================================================
+
+Bad Practice:
+
+SELECT *
+FROM orders;
+
+Recommended:
+
+SELECT *
+FROM orders
+LIMIT 50 OFFSET 0;
+
+====================================================
+13. MONITOR DATABASE ACTIVITY
+====================================================
+
+Active Sessions:
+
+SELECT *
+FROM pg_stat_activity;
+
+Database Statistics:
+
+SELECT *
+FROM pg_stat_database;
+
+====================================================
+14. CHECK TABLE SIZE
+====================================================
+
+SELECT
+pg_size_pretty(
+pg_total_relation_size('orders')
+);
+
+====================================================
+15. CHECK INDEX USAGE
+====================================================
+
+SELECT
+relname,
+idx_scan
+FROM pg_stat_user_tables;
+
+====================================================
+16. VACUUM AND ANALYZE
+====================================================
+
+VACUUM ANALYZE orders;
+
+Purpose:
+
+- Remove dead tuples
+- Update statistics
+- Improve query planning
+
+====================================================
+17. REINDEX DATABASE
+====================================================
+
+REINDEX TABLE orders;
+
+Or:
+
+REINDEX DATABASE sales_db;
+
+====================================================
+18. PERFORMANCE TESTING
+====================================================
+
+Before Optimization:
+
+Execution Time = 1200 ms
+
+After Index Creation:
+
+Execution Time = 80 ms
+
+Performance Improvement:
+
+93.3%
+
+====================================================
+19. REPORT FORMAT
+====================================================
+
+Optimization Report
+
+Query Tested:
+----------------------------------------
+SELECT *
+FROM orders
+WHERE customer_id = 100;
+
+Before Optimization:
+----------------------------------------
+Execution Time : 1200 ms
+Scan Type      : Sequential Scan
+
+After Optimization:
+----------------------------------------
+Execution Time : 80 ms
+Scan Type      : Index Scan
+
+Improvement:
+----------------------------------------
+93.3%
+
+====================================================
+20. BEST PRACTICES
+====================================================
+
+1. Use indexes wisely.
+2. Avoid SELECT *.
+3. Optimize JOIN conditions.
+4. Regularly run VACUUM ANALYZE.
+5. Monitor slow queries.
+6. Use LIMIT for large datasets.
+7. Remove unused indexes.
+8. Review execution plans regularly.
+
+====================================================
+21. TOOLS USED
+====================================================
+
+- PostgreSQL
+- pgAdmin
+- EXPLAIN ANALYZE
+- pg_stat_activity
+- pg_stat_database
+- VACUUM
+- REINDEX
+
+====================================================
+22. EXPECTED OUTCOME
+====================================================
+
+[OK] Slow queries identified
+[OK] Indexes implemented
+[OK] Query execution improved
+[OK] Reduced database load
+[OK] Faster application response
+[OK] Performance optimization report generated
+
+END OF DOCUMENT
